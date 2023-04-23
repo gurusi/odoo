@@ -20,7 +20,9 @@ echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc
 locale-gen
 source ~/.bashrc
 
-apt-get update && apt-get -y upgrade
+# echo 'Acquire::AllowReleaseInfoChange::Suite "true";' | tee /etc/apt/apt.conf.d/01allow_releaseinfo_changes
+
+apt-get update && apt-get -y upgrade --allow-downgrades
 # Do not be too fast to upgrade to more recent firmware and kernel than 4.38
 # Firmware 4.44 seems to prevent the LED mechanism from working
 
@@ -28,6 +30,7 @@ PKGS_TO_INSTALL="
     console-data \
     cups \
     cups-ipp-utils \
+    cups-browsed \
     dbus \
     dbus-x11 \
     dnsmasq \
@@ -41,10 +44,11 @@ PKGS_TO_INSTALL="
     libpq-dev \
     lightdm \
     localepurge \
+    net-tools \
     nginx-full \
     openbox \
     printer-driver-all \
-    python-cups \
+    python3-cups \
     python3 \
     python3-babel \
     python3-dateutil \
@@ -71,6 +75,7 @@ PKGS_TO_INSTALL="
     python3-serial \
     python3-tz \
     python3-urllib3 \
+    python3-usb \
     python3-werkzeug \
     rsync \
     screen \
@@ -105,14 +110,19 @@ PIP_TO_INSTALL="
     pyusb \
     v4l2"
 
-pip3 install ${PIP_TO_INSTALL}
+# pip3 install ${PIP_TO_INSTALL}
 
 # Dowload MPD server and library for Six terminals
 wget 'https://nightly.odoo.com/master/iotbox/eftdvs' -P /usr/local/bin/
 chmod +x /usr/local/bin/eftdvs
-wget 'https://nightly.odoo.com/master/iotbox/eftapi.so' -P /usr/lib/
+
+
+adduser --disabled-password  --gecos Rpi pi
+
+echo "pi:raspberry"|chpasswd
 
 groupadd usbusers
+usermod -a -G sudo pi
 usermod -a -G usbusers pi
 usermod -a -G lp pi
 usermod -a -G input lightdm
@@ -150,10 +160,10 @@ systemctl disable cups-browsed.service
 # (/dev/mmcblk0p1) and we don't mount that afterwards.
 # This option disables any black strips around the screen
 # cf: https://www.raspberrypi.org/documentation/configuration/raspi-config.md
-echo "disable_overscan=1" >> /boot/config.txt
+# echo "disable_overscan=1" >> /boot/config.txt
 
 # Separate framebuffers for both screens on RPI4
-sed -i '/dtoverlay/d' /boot/config.txt
+# sed -i '/dtoverlay/d' /boot/config.txt
 
 # exclude /drivers folder from git info to be able to load specific drivers
 echo "addons/hw_drivers/iot_devices/" > /home/pi/odoo/.git/info/exclude

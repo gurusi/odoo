@@ -130,6 +130,8 @@ mkdir -v /var/log/odoo
 chown pi:pi /var/log/odoo
 chown pi:pi -R /home/pi/odoo/
 
+sed -i -e "s/%sudo.*/%sudo    ALL=(ALL) NOPASSWD: ALL/" /etc/sudoers
+
 # logrotate is very picky when it comes to file permissions
 chown -R root:root /etc/logrotate.d/
 chmod -R 644 /etc/logrotate.d/
@@ -147,6 +149,7 @@ systemctl enable ramdisks.service
 systemctl enable led-status.service
 systemctl disable dphys-swapfile.service
 systemctl enable ssh
+systemctl start ssh
 systemctl set-default graphical.target
 systemctl disable getty@tty1.service
 systemctl enable autologin@.service
@@ -154,6 +157,25 @@ systemctl disable systemd-timesyncd.service
 systemctl unmask hostapd.service
 systemctl disable hostapd.service
 systemctl disable cups-browsed.service
+
+### This are not working. Just disabling them; probaby we don't need them. 
+# systemd-rfkill.service: Failed at step STATE_DIRECTORY spawning /lib/systemd/systemd-rfkill: Read-only file system
+systemctl disable systemd-rfkill.service
+
+# console-setup.sh[326]: setupcon: /etc/console-setup is not writable. No files will be saved there.
+# console-setup.sh[326]: /usr/bin/setupcon: 870: /usr/bin/setupcon: cannot create /etc/console-setup/cached_UTF-8_del.kmap.gz: Read-only file system
+systemctl disable console-setup.service
+
+# Disabling it, because it needs a rw filesystem. But we might need it (swap), so this should be temporary
+systemctl disable armbian-zram-config.service
+
+#Same here
+systemctl disable armbian-ramlog.service
+systemctl disable armbian-hardware-monitor armbian-hardware-optimize.service
+
+# I guess we don't need them. We did the first run config.
+systemctl disable armbian-firstrun.service armbian-firstrun-config.service
+
 
 # disable overscan in /boot/config.txt, we can't use
 # overwrite_after_init because it's on a different device

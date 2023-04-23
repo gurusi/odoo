@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set_brightness() {
-    echo "${1}" > /sys/class/leds/led0/brightness
+    echo "${1}" > /sys/class/leds/bananapi\:green\:user/brightness
 }
 
 check_status_loop() {

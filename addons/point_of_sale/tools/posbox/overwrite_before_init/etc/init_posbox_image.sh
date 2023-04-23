@@ -55,6 +55,7 @@ PKGS_TO_INSTALL="
     python3-decorator \
     python3-dev \
     python3-docutils \
+    python3-evdev \
     python3-jinja2 \
     python3-ldap \
     python3-libsass \
@@ -62,6 +63,7 @@ PKGS_TO_INSTALL="
     python3-mako \
     python3-mock \
     python3-netifaces \
+    python3-openssl \
     python3-passlib \
     python3-pil \
     python3-pip \
@@ -102,15 +104,19 @@ rm -rfv /usr/share/doc
 # so we install the latest pyusb that works with this libusb.
 # Even in stretch, we had an error with langid (but worked otherwise)
 # We fixe the version of evdev to 1.2.0 because in 1.3.0 we have a RuntimeError in 'get_event_loop()'
+# PIP_TO_INSTALL="
+#     evdev==1.2.0 \
+#     gatt \
+#     polib \
+#     pycups \
+#     pyusb \
+#     v4l2"
+
 PIP_TO_INSTALL="
-    evdev==1.2.0 \
-    gatt \
     polib \
-    pycups \
-    pyusb \
     v4l2"
 
-# pip3 install ${PIP_TO_INSTALL}
+pip3 install ${PIP_TO_INSTALL}
 
 # Dowload MPD server and library for Six terminals
 wget 'https://nightly.odoo.com/master/iotbox/eftdvs' -P /usr/local/bin/
@@ -173,7 +179,7 @@ systemctl disable armbian-zram-config.service
 systemctl disable armbian-ramlog.service
 systemctl disable armbian-hardware-monitor armbian-hardware-optimize.service
 
-# I guess we don't need them. We did the first run config.
+# I guess we don't need them. We did the first run config.  
 systemctl disable armbian-firstrun.service armbian-firstrun-config.service
 
 

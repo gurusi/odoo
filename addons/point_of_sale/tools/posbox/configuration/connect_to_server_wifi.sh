@@ -80,9 +80,9 @@ function connect () {
 	sudo service dnsmasq stop
 
 	sudo pkill wpa_supplicant
-	sudo ifconfig wlan0 down
-	sudo ifconfig wlan0 0.0.0.0  # this is how you clear the interface's configuration
-	sudo ifconfig wlan0 up
+	sudo /sbin/ifconfig wlan0 down
+	sudo /sbin/ifconfig wlan0 0.0.0.0  # this is how you clear the interface's configuration
+	sudo /sbin/ifconfig wlan0 up
 
 	if [ -z "${PASSWORD}" ] ; then
 		sudo iwconfig wlan0 essid "${ESSID}"
@@ -98,7 +98,7 @@ function connect () {
 	sudo service dhcpcd restart
 
 	# give dhcp some time
-	timeout 30 sh -c 'until ifconfig wlan0 | grep "inet " ; do sleep 0.1 ; done'
+	timeout 30 sh -c 'until /sbin/ifconfig wlan0 | grep "inet " ; do sleep 0.1 ; done'
 	TIMEOUT_RETURN=$?
 
 

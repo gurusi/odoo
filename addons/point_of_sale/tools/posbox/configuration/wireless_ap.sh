@@ -5,8 +5,8 @@ WIRED_IP=$(python3 -c "import netifaces as ni; print(ni.ifaddresses('eth0').get(
 WIFI_NETWORK_FILE="/home/pi/wifi_network.txt"
 
 
-ifconfig wlan0 down
-ifconfig wlan0 up
+/sbin/ifconfig wlan0 down
+/sbin/ifconfig wlan0 up
 
 # wait for wlan0 to come up
 sleep 5

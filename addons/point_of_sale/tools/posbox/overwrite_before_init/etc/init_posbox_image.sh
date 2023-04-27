@@ -38,7 +38,9 @@ PKGS_TO_INSTALL="
     fswebcam \
     git \
     hostapd \
+    isc-dhcp-client \
     iw \
+    iwd \
     kpartx \
     libcups2-dev \
     libpq-dev \
@@ -151,6 +153,9 @@ update-rc.d -f nginx remove
 update-rc.d -f dnsmasq remove
 update-rc.d timesyncd defaults
 
+# Guru
+rm -f /etc/modules-load.d/cups-filters.conf    
+
 systemctl enable ramdisks.service
 systemctl enable led-status.service
 systemctl disable dphys-swapfile.service
@@ -181,6 +186,12 @@ systemctl disable armbian-hardware-monitor armbian-hardware-optimize.service
 
 # I guess we don't need them. We did the first run config.  
 systemctl disable armbian-firstrun.service armbian-firstrun-config.service
+
+# We don't want the NetworkManager to handle the networking
+systemctl disable network-manager.service
+
+# We are using iwd for WiFi
+systemctl disable wpa_supplicant
 
 
 # disable overscan in /boot/config.txt, we can't use

@@ -15,26 +15,28 @@ function connect () {
 
 	sleep 3
 
-	sudo pkill -f keep_wifi_alive.sh
-	WIFI_WAS_LOST=$?
+    # iwd keeps the wifi alive (hopefully)
+	# sudo pkill -f keep_wifi_alive.sh
+	# WIFI_WAS_LOST=$?
 
+    # iwd stores credentials for wifi
 	# make network choice persistent
-	if [ -n "${ESSID}" ] ; then
-		if [ -n "${PERSIST}" ] ; then
-			logger -t posbox_connect_to_wifi "Making network selection permanent"
-			sudo mount -o remount,rw /
-			echo "${ESSID}" > ${PERSISTENT_WIFI_NETWORK_FILE}
-			echo "${PASSWORD}" >> ${PERSISTENT_WIFI_NETWORK_FILE}
-			sudo mount -o remount,ro /
-		fi
-	else
-		logger -t posbox_connect_to_wifi "Reading configuration from ${PERSISTENT_WIFI_NETWORK_FILE}"
-		ESSID=$(head -n 1 "${PERSISTENT_WIFI_NETWORK_FILE}" | tr -d '\n')
-		PASSWORD=$(tail -n 1 "${PERSISTENT_WIFI_NETWORK_FILE}" | tr -d '\n')
-	fi
+	# if [ -n "${ESSID}" ] ; then
+	# 	if [ -n "${PERSIST}" ] ; then
+	# 		logger -t posbox_connect_to_wifi "Making network selection permanent"
+	# 		sudo mount -o remount,rw /
+	# 		echo "${ESSID}" > ${PERSISTENT_WIFI_NETWORK_FILE}
+	# 		echo "${PASSWORD}" >> ${PERSISTENT_WIFI_NETWORK_FILE}
+	# 		sudo mount -o remount,ro /
+	# 	fi
+	# else
+	# 	logger -t posbox_connect_to_wifi "Reading configuration from ${PERSISTENT_WIFI_NETWORK_FILE}"
+	# 	ESSID=$(head -n 1 "${PERSISTENT_WIFI_NETWORK_FILE}" | tr -d '\n')
+	# 	PASSWORD=$(tail -n 1 "${PERSISTENT_WIFI_NETWORK_FILE}" | tr -d '\n')
+	# fi
 
-	echo "${ESSID}" > ${CURRENT_WIFI_NETWORK_FILE}
-	echo "${PASSWORD}" >> ${CURRENT_WIFI_NETWORK_FILE}
+	# echo "${ESSID}" > ${CURRENT_WIFI_NETWORK_FILE}
+	# echo "${PASSWORD}" >> ${CURRENT_WIFI_NETWORK_FILE}
 
 	logger -t posbox_connect_to_wifi "Connecting to ${ESSID}"
 	sudo service hostapd stop
@@ -48,13 +50,15 @@ function connect () {
 	sudo /sbin/ifconfig wlan0 up
 
 	if [ -z "${PASSWORD}" ] ; then
-		sudo iwconfig wlan0 essid "${ESSID}"
+		# sudo iwconfig wlan0 essid "${ESSID}"
+        iwctl station wlan0 connect "${ESSID}"
 	else
+        iwctl --passphrase="${PASSWORD}" station wlan0 connect "${ESSID}"
 		# Necessary in stretch: https://www.raspberrypi.org/forums/viewtopic.php?t=196927
-		sudo cp /etc/wpa_supplicant/wpa_supplicant.conf "${WPA_PASS_FILE}"
-		sudo chmod 777 "${WPA_PASS_FILE}"
-		sudo wpa_passphrase "${ESSID}" "${PASSWORD}" >> "${WPA_PASS_FILE}"
-		sudo wpa_supplicant -B -i wlan0 -c "${WPA_PASS_FILE}"
+		# sudo cp /etc/wpa_supplicant/wpa_supplicant.conf "${WPA_PASS_FILE}"
+		# sudo chmod 777 "${WPA_PASS_FILE}"
+		# sudo wpa_passphrase "${ESSID}" "${PASSWORD}" >> "${WPA_PASS_FILE}"
+		# sudo wpa_supplicant -B -i wlan0 -c "${WPA_PASS_FILE}"
 	fi
 
 	sudo systemctl daemon-reload
